@@ -1,49 +1,52 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
-import { apiClient } from "@/lib/api"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/lib/api";
 
 export function UpdateStockExchangeForm() {
-  const [saleOrderId, setSaleOrderId] = useState("")
-  const [brandItemId, setBrandItemId] = useState("")
-  const [quantity, setQuantity] = useState("")
-  const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
+  const [saleOrderId, setSaleOrderId] = useState("");
+  const [brandItemId, setBrandItemId] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      await apiClient.patch("/api/v1/sale-order-items/stockexchange_sale_order/", {
-        sale_order_id: Number.parseInt(saleOrderId),
-        brand_item_id: Number.parseInt(brandItemId),
-        quantity: Number.parseInt(quantity),
-      })
+      await apiClient.patch(
+        "/api/v1/sale-order-items/update_stockexchange_sale_order/",
+        {
+          sale_order_id: Number.parseInt(saleOrderId),
+          brand_item_id: Number.parseInt(brandItemId),
+          quantity: Number.parseInt(quantity),
+        }
+      );
 
       toast({
         title: "Success",
         description: "Stock exchange order updated successfully",
-      })
-      setSaleOrderId("")
-      setBrandItemId("")
-      setQuantity("")
+      });
+      setSaleOrderId("");
+      setBrandItemId("");
+      setQuantity("");
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update stock exchange order",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,5 +91,5 @@ export function UpdateStockExchangeForm() {
         {loading ? "Updating..." : "Update Stock Exchange Order"}
       </Button>
     </form>
-  )
+  );
 }
