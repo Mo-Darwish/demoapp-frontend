@@ -57,40 +57,25 @@ export function CreateBulkStockExchangeForm() {
         brand_item_id: Number.parseInt(item.brand_item_id),
       }));
 
-      const response = await apiClient.post(
-        "/api/v1/sale-orders/stock-exchange/bulk/",
-        data
-      );
-      if (
-        response &&
-        typeof response === "object" &&
-        "status" in response &&
-        response.status === 201
-      ) {
-        toast({
-          title: "Success",
-          description: "Bulk stock exchange items created successfully",
-        });
-        setItems([{ sale_order_id: "", quantity: "", brand_item_id: "" }]);
-      } else if (response && response.status && response.status !== 201) {
-        toast({
-          title: "Error",
-          description: `Failed to create bulk stock exchange items (Status: ${response.status})`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Bulk stock exchange items created successfully",
-        });
-        setItems([{ sale_order_id: "", quantity: "", brand_item_id: "" }]);
-      }
-    } catch (error: any) {
+      await apiClient.post("/api/v1/sale-orders/stock-exchange/bulk/", data);
+
+      // Show success message
       toast({
-        title: "Error",
+        title: "✓ Success",
+        description: `${items.length} stock exchange item(s) have been created successfully!`,
+        variant: "default", // default is usually green/success style
+      });
+
+      // Reset form
+      setItems([{ sale_order_id: "", quantity: "", brand_item_id: "" }]);
+    } catch (error: any) {
+      // Show error message with details if available
+      toast({
+        title: "× Error",
         description:
-          error?.message || "Failed to create bulk stock exchange items",
-        variant: "destructive",
+          error?.message ||
+          "Failed to create stock exchange items. Please check your input and try again.",
+        variant: "destructive", // destructive is usually red/error style
       });
     } finally {
       setLoading(false);

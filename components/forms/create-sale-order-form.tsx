@@ -19,41 +19,26 @@ export function CreateSaleOrderForm() {
     setLoading(true);
 
     try {
-      const response = await apiClient.post(
-        "/api/v1/sale-orders/create_sale_order/",
-        { status }
-      );
-      // If apiClient returns a Response object, check status. If it returns parsed JSON, check for a status property or assume success.
-      if (
-        response &&
-        typeof response === "object" &&
-        "status" in response &&
-        response.status === 201
-      ) {
-        toast({
-          title: "Success",
-          description: "Sale order created successfully",
-        });
-        setStatus("");
-      } else if (response && response.status && response.status !== 201) {
-        toast({
-          title: "Error",
-          description: `Failed to create sale order (Status: ${response.status})`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Sale order created successfully",
-        });
-        setStatus("");
-      }
-    } catch (error: any) {
-      // If error has a status property, show it
+      await apiClient.post("/api/v1/sale-orders/create_sale_order/", {
+        status,
+      });
+
+      // Show success message
       toast({
-        title: "Error",
-        description: error?.message || "Failed to create sale order",
-        variant: "destructive",
+        title: "✓ Success",
+        description: "Sale order has been created successfully!",
+        variant: "default", // default is usually green/success style
+      });
+
+      // Reset form
+      setStatus("");
+    } catch (error: any) {
+      // Show error message with details if available
+      toast({
+        title: "× Error",
+        description:
+          error?.message || "Failed to create sale order. Please try again.",
+        variant: "destructive", // destructive is usually red/error style
       });
     } finally {
       setLoading(false);
