@@ -1,62 +1,79 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://demoapp-mbij.onrender.com";
 
 class ApiClient {
   constructor() {
-    this.baseURL = API_BASE_URL
+    this.baseURL = API_BASE_URL;
   }
 
   async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseURL}${endpoint}`
-    
+    const url = `${this.baseURL}${endpoint}`;
+
     const config: RequestInit = {
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
       },
       ...options,
-    }
+    };
 
     // Add authentication token if available
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("authToken")
+      const token = localStorage.getItem("authToken");
       if (token) {
         config.headers = {
           ...config.headers,
           Authorization: `Token ${token}`,
-        }
+        };
       }
     }
 
     try {
-      console.log('Making request to:', url) // Debug log
-      console.log('Request config:', config) // Debug log
-      
-      const response = await fetch(url, config)
-      
-      console.log('Response status:', response.status) // Debug log
-      console.log('Response headers:', response.headers) // Debug log
-      
+      const response = await fetch(url, config);
+
       if (!response.ok) {
-        const errorText = await response.text()
-        console.log('Error response body:', errorText) // Debug log
-        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      const data = await response.json()
-      console.log('Response data:', data) // Debug log
-      return data
+
+      return await response.json();
     } catch (error) {
-      console.error("API request failed:", error)
-      console.error("Full error details:", {
-        message: error.message,
-        name: error.name,
-        stack: error.stack
-      })
-      throw error
+      console.error("API request failed:", error);
+      throw error;
     }
   }
 
-  // ... rest of your methods remain the same
+  // HTTP methods
+  get(endpoint: string, options: RequestInit = {}) {
+    return this.request(endpoint, { method: "GET", ...options });
+  }
+
+  post(endpoint: string, data: any, options: RequestInit = {}) {
+    return this.request(endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+      ...options,
+    });
+  }
+
+  put(endpoint: string, data: any, options: RequestInit = {}) {
+    return this.request(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      ...options,
+    });
+  }
+
+  patch(endpoint: string, data: any, options: RequestInit = {}) {
+    return this.request(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+      ...options,
+    });
+  }
+
+  delete(endpoint: string, options: RequestInit = {}) {
+    return this.request(endpoint, { method: "DELETE", ...options });
+  }
 }
 
-export const apiClient = new ApiClient()
+export const apiClient = new ApiClient();
