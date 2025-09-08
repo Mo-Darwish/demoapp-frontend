@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,15 +21,7 @@ export default function RootLayout({
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         {children}
         <Analytics />
-        {/* Toast notifications */}
-        {/** @ts-ignore */}
-        <div id="toaster-root">
-          {/* Import Toaster dynamically to avoid SSR issues if needed */}
-          {/* If you use a custom Toaster, import it from components/ui/toaster */}
-          {/* If you use Sonner, import from components/ui/sonner */}
-          {/* Here, we use your custom Toaster */}
-          {require("@/components/ui/toaster").Toaster()}
-        </div>
+        <Toaster />
       </body>
     </html>
   );
