@@ -1,70 +1,89 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
-import { Plus, Minus } from "lucide-react"
-import { apiClient } from "@/lib/api"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Plus, Minus } from "lucide-react";
+import { apiClient } from "@/lib/api";
 
 interface BulkItem {
-  sale_order_id: string
-  quantity: string
-  brand_item_id: string
+  sale_order_id: string;
+  quantity: string;
+  brand_item_id: string;
 }
 
 export function CreateBulkItemsForm() {
-  const [items, setItems] = useState<BulkItem[]>([{ sale_order_id: "", quantity: "", brand_item_id: "" }])
-  const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
+  const [items, setItems] = useState<BulkItem[]>([
+    { sale_order_id: "", quantity: "", brand_item_id: "" },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const addItem = () => {
-    setItems([...items, { sale_order_id: "", quantity: "", brand_item_id: "" }])
-  }
+    setItems([
+      ...items,
+      { sale_order_id: "", quantity: "", brand_item_id: "" },
+    ]);
+  };
 
   const removeItem = (index: number) => {
     if (items.length > 1) {
-      setItems(items.filter((_, i) => i !== index))
+      setItems(items.filter((_, i) => i !== index));
     }
-  }
+  };
 
   const updateItem = (index: number, field: keyof BulkItem, value: string) => {
-    const updatedItems = [...items]
-    updatedItems[index][field] = value
-    setItems(updatedItems)
-  }
+    const updatedItems = [...items];
+    updatedItems[index][field] = value;
+    setItems(updatedItems);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const data = items.map((item) => ({
         sale_order_id: Number.parseInt(item.sale_order_id),
         quantity: Number.parseInt(item.quantity),
         brand_item_id: Number.parseInt(item.brand_item_id),
-      }))
+      }));
 
-      await apiClient.post("/api/v1/sale-orders/items/bulk/", data)
+      const response = await fetch("/api/v1/sale-orders/items/bulk/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-      toast({
-        title: "Success",
-        description: "Bulk items created successfully",
-      })
-      setItems([{ sale_order_id: "", quantity: "", brand_item_id: "" }])
+      if (response.status === 201) {
+        toast({
+          title: "Success",
+          description: "Bulk items created successfully",
+        });
+        setItems([{ sale_order_id: "", quantity: "", brand_item_id: "" }]);
+      } else {
+        toast({
+          title: "Error",
+          description: `Failed to create bulk items (Status: ${response.status})`,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to create bulk items",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -73,7 +92,12 @@ export function CreateBulkItemsForm() {
           <div className="flex justify-between items-center">
             <Label className="text-sm font-medium">Item {index + 1}</Label>
             {items.length > 1 && (
-              <Button type="button" variant="outline" size="sm" onClick={() => removeItem(index)}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => removeItem(index)}
+              >
                 <Minus className="h-4 w-4" />
               </Button>
             )}
@@ -88,7 +112,9 @@ export function CreateBulkItemsForm() {
                 id={`sale_order_id_${index}`}
                 type="number"
                 value={item.sale_order_id}
-                onChange={(e) => updateItem(index, "sale_order_id", e.target.value)}
+                onChange={(e) =>
+                  updateItem(index, "sale_order_id", e.target.value)
+                }
                 required
               />
             </div>
@@ -112,7 +138,9 @@ export function CreateBulkItemsForm() {
                 id={`brand_item_id_${index}`}
                 type="number"
                 value={item.brand_item_id}
-                onChange={(e) => updateItem(index, "brand_item_id", e.target.value)}
+                onChange={(e) =>
+                  updateItem(index, "brand_item_id", e.target.value)
+                }
                 required
               />
             </div>
@@ -121,7 +149,12 @@ export function CreateBulkItemsForm() {
       ))}
 
       <div className="flex gap-2">
-        <Button type="button" variant="outline" onClick={addItem} className="flex-1 bg-transparent">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={addItem}
+          className="flex-1 bg-transparent"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Item
         </Button>
@@ -130,5 +163,5 @@ export function CreateBulkItemsForm() {
         </Button>
       </div>
     </form>
-  )
+  );
 }
